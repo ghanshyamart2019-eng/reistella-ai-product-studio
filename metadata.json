@@ -1,0 +1,5 @@
+{
+  "name": "AI Product Mockup Generator",
+  "description": "An application for e-commerce sellers to automatically remove backgrounds from product photos and generate AI-based mockup visuals using their own Gemini API key.",
+  "requestFramePermissions": []
+}
