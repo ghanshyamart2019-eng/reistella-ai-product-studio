@@ -1,8 +1,5 @@
 {
   "name": "AI Product Mockup Generator",
-  "description": "An application for e-commerce sellers to automatically remove backgrounds from product photos and generate AI-based mockup visuals.",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
+  "description": "REISTELLA AI PRODUCT STUDIO — Let Your Brilliance Reign. Local zero-API-cost jewellery photography studio for pixel-exact background removal, luxury studio backdrops, social media sizing, and export-ready product copy.",
+  "requestFramePermissions": []
 }

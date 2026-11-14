@@ -4,14 +4,28 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Product Mockup Generator</title>
-    <meta name="description" content="An application for e-commerce sellers to automatically remove backgrounds from product photos and generate AI-based mockup visuals." />
-    <meta property="og:title" content="AI Product Mockup Generator" />
-    <meta property="og:description" content="An application for e-commerce sellers to automatically remove backgrounds from product photos and generate AI-based mockup visuals." />
+    <title>REISTELLA AI PRODUCT STUDIO — Let Your Brilliance Reign</title>
+    <meta name="description" content="Local zero-API-cost luxury jewellery photography studio. Preserve every stone, metal finish, and chain while generating Pure White, Midnight Navy, and Champagne Beige studio assets." />
+    <meta property="og:title" content="REISTELLA AI PRODUCT STUDIO — Let Your Brilliance Reign" />
+    <meta property="og:description" content="Local zero-API-cost luxury jewellery photography studio for pixel-exact cutouts, 1080px social sizes, and product copy." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+              sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
   </head>
-  <body class="bg-gray-100">
+  <body class="bg-white text-[#0F1B33] font-sans antialiased selection:bg-[#C5A55A]/20 selection:text-[#0F1B33]">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
