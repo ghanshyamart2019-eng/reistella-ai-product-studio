@@ -1,20 +1,12 @@
-
-import React, { useState, useContext, useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { ApiKeyContext, ApiKeyProvider } from './context/ApiKeyContext';
-import ApiKeyModal from './components/ApiKeyModal';
+import React, { useState, useCallback } from 'react';
+import { useDropzone, type DropzoneOptions } from 'react-dropzone';
 import Spinner from './components/common/Spinner';
 import { GeneratedImage, LoadingState } from './types';
 import { describeImage, generateImageFromImage, generateMockupPrompts } from './services/geminiService';
 
 declare const JSZip: any;
 
-const MainApp: React.FC = () => {
-    const context = useContext(ApiKeyContext);
-    if (!context) throw new Error("MainApp must be used within an ApiKeyProvider");
-
-    const { apiKey, isApiKeyValid, isVerifying, clearApiKey } = context;
-
+const App: React.FC = () => {
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [productDescription, setProductDescription] = useState<string>('');
     const [mockupPrompts, setMockupPrompts] = useState<string[]>([]);
@@ -34,33 +26,31 @@ const MainApp: React.FC = () => {
     };
 
     const processImage = async (file: File) => {
-        if (!apiKey) {
-            setError("API Key is not available.");
-            return;
-        }
-
         resetState();
         setImageFile(file);
         
         try {
             setLoadingState('describing');
-            const description = await describeImage(apiKey, file);
+            const description = await describeImage(file);
             setProductDescription(description);
 
-            const prompts = await generateMockupPrompts(apiKey, description);
+            const prompts = await generateMockupPrompts(description);
             setMockupPrompts(prompts);
             
             setLoadingState('editing-prompts');
 
         } catch (err) {
             console.error("Image processing failed:", err);
-            setError("An error occurred during image analysis. Please check your API key and try again.");
+            const message = err instanceof Error && err.message
+                ? err.message
+                : "An error occurred during image analysis. Please try again.";
+            setError(message);
             setLoadingState('error');
         }
     };
 
     const handleGenerateMockups = async () => {
-        if (!apiKey || !imageFile) {
+        if (!imageFile) {
             setError("An error occurred. Please start over.");
             setLoadingState('error');
             return;
@@ -71,10 +61,10 @@ const MainApp: React.FC = () => {
             const whiteBgPrompt = "Place the product on a clean, pure white background with a subtle, realistic shadow.";
 
             const promises = [
-                generateImageFromImage(apiKey, imageFile, whiteBgPrompt),
-                generateImageFromImage(apiKey, imageFile, mockupPrompts[0]),
-                generateImageFromImage(apiKey, imageFile, mockupPrompts[1]),
-                generateImageFromImage(apiKey, imageFile, mockupPrompts[2])
+                generateImageFromImage(imageFile, whiteBgPrompt),
+                generateImageFromImage(imageFile, mockupPrompts[0]),
+                generateImageFromImage(imageFile, mockupPrompts[1]),
+                generateImageFromImage(imageFile, mockupPrompts[2])
             ];
 
             const [whiteBg, mockup1, mockup2, mockup3] = await Promise.all(promises);
@@ -90,7 +80,10 @@ const MainApp: React.FC = () => {
 
         } catch (err) {
             console.error("Image generation failed:", err);
-            setError("An error occurred during image generation. Please check your API key, ensure it has enough credits, and try again.");
+            const message = err instanceof Error && err.message
+                ? err.message
+                : "An error occurred during image generation. Please try again.";
+            setError(message);
             setLoadingState('error');
         }
     };
@@ -104,13 +97,13 @@ const MainApp: React.FC = () => {
             }
             processImage(file);
         }
-    }, [apiKey]);
+    }, []);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
         accept: { 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'], 'image/heic': ['.heic'] },
         multiple: false
-    });
+    } as unknown as DropzoneOptions);
 
     const downloadImage = (src: string, name: string) => {
         const link = document.createElement('a');
@@ -124,7 +117,6 @@ const MainApp: React.FC = () => {
     const downloadAll = async () => {
         if (typeof JSZip === 'undefined') {
             console.error('JSZip not loaded');
-            alert('Could not download all files. JSZip library is missing.');
             return;
         }
         const zip = new JSZip();
@@ -133,7 +125,7 @@ const MainApp: React.FC = () => {
             const blob = await response.blob();
             zip.file(image.name, blob);
         }
-        zip.generateAsync({ type: 'blob' }).then(content => {
+        zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
             const link = document.createElement('a');
             link.href = URL.createObjectURL(content);
             link.download = 'product_mockups.zip';
@@ -146,18 +138,6 @@ const MainApp: React.FC = () => {
     const handlePromptChange = (index: number, value: string) => {
         setMockupPrompts(prompts => prompts.map((p, i) => i === index ? value : p));
     };
-
-    if (isVerifying) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Spinner message="Verifying API Key..." />
-            </div>
-        );
-    }
-
-    if (!isApiKeyValid) {
-        return <ApiKeyModal />;
-    }
 
     const renderContent = () => {
         if (loadingState === 'idle' || loadingState === 'error') {
@@ -230,7 +210,6 @@ const MainApp: React.FC = () => {
             <header className="bg-white shadow-sm">
                 <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-gray-900">AI Product Mockup Generator</h1>
-                    <button onClick={clearApiKey} className="text-sm font-medium text-indigo-600 hover:text-indigo-500">Change API Key</button>
                 </div>
             </header>
             <main className="py-10">
@@ -303,15 +282,6 @@ const MainApp: React.FC = () => {
                 </div>
             )}
         </div>
-    );
-};
-
-
-const App: React.FC = () => {
-    return (
-        <ApiKeyProvider>
-            <MainApp />
-        </ApiKeyProvider>
     );
 };
 
